@@ -98,14 +98,22 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 return NavigationDecision.prevent;
               }
 
+              // handle facebook links
+              if (url.startsWith('https://www.facebook.com/') || url.startsWith('https://m.facebook.com/') || url.startsWith('https://www.messenger.com/') || url.startsWith('fb://')) {
+                String modifiedUrl = url;
+                if (modifiedUrl.startsWith('fb://')) {
+                  modifiedUrl = modifiedUrl.replaceFirst('fb://', 'https://');
+                }
+                _launchUrl(Uri.parse(modifiedUrl));
+                return NavigationDecision.prevent;
+              }
               return NavigationDecision.navigate;
             },
           ),
         )
-        // ..loadRequest(Uri.parse('https://kantinburom.github.io/'));
         ..loadRequest(Uri.parse(_getPreferredUrl()));
 
-    setState(() {
+      setState(() {
         _controller = controller;
       });
     } catch (e) {
@@ -190,7 +198,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
 
   Future<void> _handleIntentUrl(String url) async {
     try {
-      final packageName = RegExp(r'package=([\w\.]+)').firstMatch(url)?.group(1);
+      // final packageName = RegExp(r'package=([\w\.]+)').firstMatch(url)?.group(1);
+      final packageName = RegExp(r'package=([\w.]+)').firstMatch(url)?.group(1);
 
       if (packageName != null) {
         final playStoreUrl = 'market://details?id=$packageName';
